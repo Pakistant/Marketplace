@@ -8,14 +8,14 @@
         </p>
       </div>
       <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-primary btn-sm" type="button" (click)="loadOrders(true)" [disabled]="isLoading || isRefreshing">
-          {{ isRefreshing ? 'Actualisation...' : 'Actualiser' }}
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="refreshOrders(true)" [disabled]="isLoading">
+          Actualiser
         </button>
         <span class="badge bg-primary-subtle text-primary-emphasis">{{ orders.length }} commandes</span>
       </div>
     </div>
 
-    <div *ngIf="isLoading" class="orders-skeleton" aria-label="Chargement des commandes">
+    <div *ngIf="isLoading && orders.length === 0" class="orders-skeleton">
       <div class="skeleton-row" *ngFor="let row of [1, 2, 3]"></div>
     </div>
 
@@ -30,7 +30,7 @@
       </small>
     </div>
 
-    <div *ngIf="!isLoading && orders.length > 0" class="table-responsive" [class.is-refreshing]="isRefreshing">
+    <div *ngIf="orders.length > 0" class="table-responsive" [class.is-refreshing]="isLoading">
       <table class="table align-middle">
         <thead>
           <tr>

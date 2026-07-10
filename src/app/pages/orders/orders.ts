@@ -16,7 +16,6 @@ export class OrdersPage implements OnInit, OnDestroy {
   orders: Order[] = [];
   statusOptions: Array<Order['status']> = ['pending', 'confirmed', 'shipped'];
   isLoading = false;
-  isRefreshing = false;
   errorMessage = '';
   private subscriptions = new Subscription();
 
@@ -25,7 +24,8 @@ export class OrdersPage implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private readonly platformId: object,
   ) {
     if (isPlatformBrowser(this.platformId)) {
-      this.isLoading = this.ordersService.getCachedOrders().length === 0;
+      this.orders = this.ordersService.getCachedOrders();
+      this.isLoading = this.orders.length === 0;
     }
   }
 
@@ -33,8 +33,6 @@ export class OrdersPage implements OnInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-
-    this.orders = this.ordersService.getCachedOrders();
 
     this.subscriptions.add(
       this.ordersService.orders$.subscribe((orders) => {
@@ -44,36 +42,41 @@ export class OrdersPage implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.ordersService.loading$.subscribe((loading) => {
-        this.isLoading = loading && this.orders.length === 0;
-        this.isRefreshing = loading && this.orders.length > 0;
+        this.isLoading = loading;
       }),
     );
 
-    void this.loadOrders();
+    void this.refreshOrders(true);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  async loadOrders(force = false): Promise<void> {
+  async refreshOrders(force = false): Promise<void> {
     this.errorMessage = '';
 
     try {
-      await this.ordersService.listOrders({ force });
+      await this.ordersService.listOrders(force);
     } catch (error) {
-      this.errorMessage = error instanceof Error ? error.message : 'Impossible de charger les commandes.';
+      if (this.orders.length === 0) {
+        this.errorMessage = error instanceof Error ? error.message : 'Impossible de charger les commandes.';
+      }
     }
   }
 
   async updateStatus(order: Order, event: Event): Promise<void> {
     const target = event.target as HTMLSelectElement;
     const previousStatus = order.status;
+    const nextStatus = target.value as Order['status'];
     this.errorMessage = '';
 
+    order.status = nextStatus;
+
     try {
-      await this.ordersService.updateStatus(order.id, target.value as Order['status']);
+      await this.ordersService.updateStatus(order.id, nextStatus);
     } catch (error) {
+      order.status = previousStatus;
       target.value = previousStatus;
       this.errorMessage = error instanceof Error ? error.message : 'Impossible de mettre à jour le statut.';
     }

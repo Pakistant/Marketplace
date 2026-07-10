@@ -27,13 +27,7 @@ export class OrdersService {
   constructor(
     private readonly http: HttpClient,
     private readonly authService: AuthService,
-  ) {
-    this.authService.currentProducer$.subscribe((producer) => {
-      if (!producer) {
-        this.clearCache();
-      }
-    });
-  }
+  ) {}
 
   getCachedOrders(): Order[] {
     return this.ordersSubject.value;
@@ -43,19 +37,19 @@ export class OrdersService {
     return this.loadingSubject.value;
   }
 
-  preloadOrders(): void {
+  prefetch(): void {
     if (this.authService.getToken()) {
-      void this.listOrders({ silent: true });
+      void this.listOrders();
     }
   }
 
-  async listOrders(options: { force?: boolean; silent?: boolean } = {}): Promise<Order[]> {
+  async listOrders(force = false): Promise<Order[]> {
     const token = this.authService.getToken();
     if (!token) {
       throw new Error('Session expirée. Reconnectez-vous pour voir vos commandes.');
     }
 
-    if (!options.force && this.ordersSubject.value.length > 0) {
+    if (!force && this.ordersSubject.value.length > 0) {
       return this.ordersSubject.value;
     }
 
@@ -63,23 +57,25 @@ export class OrdersService {
       return this.fetchPromise;
     }
 
-    if (!options.silent) {
-      this.loadingSubject.next(true);
-    }
+    this.loadingSubject.next(this.ordersSubject.value.length === 0);
 
-    this.fetchPromise = this.fetchOrdersFromApi();
+    this.fetchPromise = firstValueFrom(
+      this.http.get<ApiOrderRow[]>('/api/orders', { headers: this.authHeaders() }),
+    )
+      .then((rows) => {
+        const orders = rows.map((row) => this.mapOrder(row));
+        this.ordersSubject.next(orders);
+        return orders;
+      })
+      .finally(() => {
+        this.loadingSubject.next(false);
+        this.fetchPromise = null;
+      });
 
-    try {
-      const orders = await this.fetchPromise;
-      this.ordersSubject.next(orders);
-      return orders;
-    } finally {
-      this.fetchPromise = null;
-      this.loadingSubject.next(false);
-    }
+    return this.fetchPromise;
   }
 
-  async updateStatus(orderId: number, status: Order['status']): Promise<void> {
+  async updateStatus(orderId: number, status: Order['status']): Promise<Order | null> {
     await firstValueFrom(
       this.http.patch(`/api/orders/${orderId}/status`, { status }, { headers: this.authHeaders() }),
     );
@@ -88,14 +84,16 @@ export class OrdersService {
       order.id === orderId ? { ...order, status } : order,
     );
     this.ordersSubject.next(updated);
+    return updated.find((order) => order.id === orderId) ?? null;
   }
 
-  private async fetchOrdersFromApi(): Promise<Order[]> {
-    const rows = await firstValueFrom(
-      this.http.get<ApiOrderRow[]>('/api/orders', { headers: this.authHeaders() }),
-    );
+  clearCache(): void {
+    this.ordersSubject.next([]);
+    this.fetchPromise = null;
+  }
 
-    return rows.map((row) => ({
+  private mapOrder(row: ApiOrderRow): Order {
+    return {
       id: row.id,
       producerId: this.authService.getCurrentProducer()?.id ?? 0,
       productId: 0,
@@ -104,13 +102,7 @@ export class OrdersService {
       quantity: row.quantity,
       status: row.status,
       createdAt: row.created_at,
-    }));
-  }
-
-  private clearCache(): void {
-    this.ordersSubject.next([]);
-    this.fetchPromise = null;
-    this.loadingSubject.next(false);
+    };
   }
 
   private authHeaders(): HttpHeaders {

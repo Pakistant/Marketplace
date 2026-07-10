@@ -27,11 +27,12 @@ export class Header implements OnInit {
   }
 
   logout(): void {
+    this.ordersService.clearCache();
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 
   prefetchOrders(): void {
-    this.ordersService.preloadOrders();
+    this.ordersService.prefetch();
   }
 }
