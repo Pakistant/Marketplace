@@ -1,0 +1,28 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" routerLink="/">Zen Producer</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto" *ngIf="producer">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/products" routerLinkActive="active">Produits</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/orders" routerLinkActive="active" (mouseenter)="prefetchOrders()">Commandes</a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2" *ngIf="producer; else guest">
+        <span class="text-light-emphasis small">Bonjour {{ producer.name }}</span>
+        <button class="btn btn-outline-light btn-sm" type="button" (click)="logout()">Déconnexion</button>
+      </div>
+
+      <ng-template #guest>
+        <a class="btn btn-outline-light btn-sm" routerLink="/login">Connexion</a>
+      </ng-template>
+    </div>
+  </div>
+</nav>

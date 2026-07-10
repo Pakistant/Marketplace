@@ -1,1 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+  background: #f4f7fb;
+  color: #1f2937;
+  font-family: Inter, 'Segoe UI', sans-serif;
+}
+
+button {
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+

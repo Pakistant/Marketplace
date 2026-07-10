@@ -1,0 +1,66 @@
+<section class="card shadow-sm border-0 rounded-4">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="h4 fw-bold mb-1">Commandes reçues</h2>
+        <p class="text-muted mb-0">
+          Seules les commandes contenant <strong>vos produits</strong> apparaissent ici.
+        </p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-primary btn-sm" type="button" (click)="loadOrders(true)" [disabled]="isLoading || isRefreshing">
+          {{ isRefreshing ? 'Actualisation...' : 'Actualiser' }}
+        </button>
+        <span class="badge bg-primary-subtle text-primary-emphasis">{{ orders.length }} commandes</span>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="orders-skeleton" aria-label="Chargement des commandes">
+      <div class="skeleton-row" *ngFor="let row of [1, 2, 3]"></div>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <div *ngIf="!isLoading && !errorMessage && orders.length === 0" class="alert alert-light border">
+      Aucune commande reçue pour vos produits.
+      <br />
+      <small class="text-muted">
+        Connectez-vous avec le compte du producteur concerné (ex. ouest@marketdouala.cm pour les produits de
+        l'Ouest).
+      </small>
+    </div>
+
+    <div *ngIf="!isLoading && orders.length > 0" class="table-responsive" [class.is-refreshing]="isRefreshing">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Client</th>
+            <th>Quantité</th>
+            <th>Date</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td>
+              <div class="fw-semibold">{{ order.productName }}</div>
+              <div class="small text-muted">#{{ order.id }}</div>
+            </td>
+            <td>{{ order.customer }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.createdAt }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge rounded-pill" [ngClass]="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
+                <select class="form-select form-select-sm w-auto" [value]="order.status" (change)="updateStatus(order, $event)">
+                  <option *ngFor="let status of statusOptions" [value]="status">{{ getStatusLabel(status) }}</option>
+                </select>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
