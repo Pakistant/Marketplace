@@ -1,0 +1,15 @@
+table,id,name,email_or_category,city_or_description,price_xaf,quantity,producer_id,status
+users,1,Cooperative Mont Manengouba,ouest@marketdouala.cm,Dschang,,,,
+users,2,Fumoirs du Wouri,wouri@marketdouala.cm,Douala,,,,
+users,3,Terroirs du Septentrion,nord@marketdouala.cm,Garoua,,,,
+products,1,Miel de l'Ouest,Epicerie,Miel floral recolte en altitude.,4500,20,1,
+products,2,Poivre de Penja,Epices,Poivre blanc IGP aux notes boisees.,3200,35,1,
+products,3,Cafe arabica de Dschang,Boissons,Cafe moulu artisanal en sachet de 250 g.,3800,18,1,
+products,4,Poisson fume de Douala,Poissonnerie,Bar fume au bois local pret a cuisiner.,6500,12,2,
+products,5,Crevettes sechees du Wouri,Poissonnerie,Crevettes sechees pour sauces traditionnelles.,5200,15,2,
+products,6,Baton de manioc,Frais,Lot de batons frais prepares a Douala.,1500,40,2,
+products,7,Karite pur du Nord,Bien-etre,Beurre de karite brut pour cuisine et soin.,2800,25,3,
+products,8,Arachides grillees de Garoua,Snack,Arachides croquantes legerement salees.,1200,50,3,
+products,9,Huile d'arachide artisanale,Epicerie,Huile pressee localement en bouteille 1 L.,4300,22,3,
+products,10,Sorgho rouge,Cereales,Sorgho trie pour bouillies et boissons locales.,2100,30,3,
+orders,example-1,Commande demo,+237699000000,Client public,,,pending

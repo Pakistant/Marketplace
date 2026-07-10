@@ -21,3 +21,8 @@ Thumbs.db
 
 # Coverage
 /coverage/
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

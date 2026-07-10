@@ -1,0 +1,8 @@
+{
+  "customerName": "Jean Dupont",
+  "customerPhone": "+237650000000",
+  "items": [
+    { "productId": 4, "quantity": 1 },
+    { "productId": 1, "quantity": 2 }
+  ]
+}

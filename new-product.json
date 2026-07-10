@@ -1,0 +1,7 @@
+{
+  "name": "Test Produit Angular",
+  "description": "Produit de test depuis l'API",
+  "price": 999,
+  "quantity": 10,
+  "category": "Test"
+}
